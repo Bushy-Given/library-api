@@ -64,15 +64,10 @@ class BookControllerTest {
     @DisplayName("test book updated successfully using /book/update URI return status 200-OK")
     void update() throws Exception {
 
-        when(bookService.save(any(BookRequest.class)))
-                .thenReturn(buildBookResponse());
-
         mockMvc.perform(put("/books/update")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(JsonUtil.toJson(buildBookRequest())))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.title").value("first Book"))
-                .andExpect(jsonPath("$.author").value("Bushy Given"))
                 .andDo(MockMvcResultHandlers.print());
     }
 

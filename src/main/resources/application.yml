@@ -1,7 +1,7 @@
 server:
   port: 8080
   servlet:
-    context-path: library-api/
+    context-path: /library-api/
 
 spring:
   h2:

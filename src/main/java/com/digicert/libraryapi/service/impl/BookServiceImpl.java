@@ -83,7 +83,7 @@ public class BookServiceImpl implements BookService {
             log.error("find all books returned empty list ");
             throw new BookNotFoundException("books not found");
         }
-        log.debug("findAll success response:{}", bookResponses);
+        log.info("findAll success response:{}", bookResponses);
         return bookResponses;
     }
 
