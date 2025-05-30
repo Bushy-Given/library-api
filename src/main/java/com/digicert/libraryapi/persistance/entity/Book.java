@@ -2,8 +2,9 @@ package com.digicert.libraryapi.persistance.entity;
 
 import lombok.*;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.Date;
+
 @Entity
 @Getter
 @Setter
@@ -30,5 +31,4 @@ public class Book {
     private void prePersist(){
         createdOn = new Date();
     }
-
 }

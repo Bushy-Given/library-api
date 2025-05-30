@@ -6,7 +6,7 @@ export interface Book {
   id?: number;
   title: string;
   author: string;
-  createdOn?: Date;
+  createdOn?: string;
 }
 
 const api = axios.create({
@@ -18,8 +18,14 @@ const api = axios.create({
 
 export const bookApi = {
   getAllBooks: async () => {
-    const response = await api.get<Book[]>('/books/all');
-    return response.data;
+    try {
+      const response = await api.get<Book[]>('/books/all');
+      console.log('API Response:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('Failed to fetch books:', error);
+      throw error;
+    }
   },
 
   getBookById: async (id: number) => {
@@ -44,12 +50,14 @@ export const bookApi = {
     }
   },
 
-  deleteBook: async (id: number) => {
+  deleteBook: async (id: number | string) => {
+    console.log('API: Sending delete request for book ID:', id);
     try {
-      await api.delete(`/books/delete/${id}`);
-      return true;
+      const response = await api.delete(`/books/delete/${id}`);
+      console.log('API: Delete response:', response);
+      return response.status === 204;
     } catch (error) {
-      console.error('Delete request failed:', error);
+      console.error('API: Delete request failed:', error);
       throw error;
     }
   },

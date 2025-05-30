@@ -10,7 +10,7 @@ import {
   useTheme,
 } from '@mui/material'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import type { Book } from '../services/api'
 import { bookApi } from '../services/api'
 import toast from 'react-hot-toast'
@@ -31,11 +31,25 @@ export default function BookForm({ book, open, onClose }: BookFormProps) {
     author: '',
   })
 
+  // Reset form state when book prop changes
+  useEffect(() => {
+    if (book) {
+      setTitle(book.title)
+      setAuthor(book.author)
+    } else {
+      setTitle('')
+      setAuthor('')
+    }
+    setErrors({ title: '', author: '' })
+  }, [book])
+
   const mutation = useMutation({
     mutationFn: (newBook: Book) => {
       if (book?.id) {
-        return bookApi.updateBook(book.id, newBook)
+        console.log('Updating book:', { ...newBook, id: book.id })
+        return bookApi.updateBook(book.id, { ...newBook, id: book.id })
       }
+      console.log('Creating new book:', newBook)
       return bookApi.createBook(newBook)
     },
     onSuccess: () => {

@@ -30,7 +30,7 @@ public class BookController {
     @PutMapping("/update")
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "update books given book request")
-    public BookResponse update(@RequestBody BookRequest book, Long id) {
+    public BookResponse update(@RequestBody BookRequest book, @RequestParam Long id) {
         return bookService.update(book, id);
     }
 
@@ -62,7 +62,7 @@ public class BookController {
         return bookService.count();
     }
 
-    @DeleteMapping("delete/{id}")
+    @DeleteMapping("/delete/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(summary = "delete a book for a given id")
     public void deleteById(@PathVariable Long id) {

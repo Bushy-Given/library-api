@@ -38,7 +38,11 @@ export default function BookList() {
 
   const { data: books = [], isLoading } = useQuery({
     queryKey: ['books'],
-    queryFn: bookApi.getAllBooks,
+    queryFn: async () => {
+      const data = await bookApi.getAllBooks();
+      console.log('Received books from API:', data);
+      return data;
+    },
   });
 
   // Filter books based on search query
@@ -63,17 +67,51 @@ export default function BookList() {
   };
 
   const deleteMutation = useMutation({
-    mutationFn: (id: number) => bookApi.deleteBook(id),
+    mutationFn: (id: string) => {
+      console.log('Deleting book with ID:', id);
+      return bookApi.deleteBook(id);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['books'] });
       toast.success('Book deleted successfully');
       setDeleteBook(null);
     },
     onError: (error) => {
-      toast.error('Failed to delete book');
+      toast.error('Failed to delete book: ' + (error as Error).message);
       console.error('Delete error:', error);
+      setDeleteBook(null);
     },
   });
+
+  const handleDeleteClick = (book: Book) => {
+    console.log('Setting book for deletion:', book);
+    setDeleteBook(book);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (!deleteBook) {
+      console.error('No book selected for deletion');
+      return;
+    }
+    
+    if (deleteBook.id === undefined || deleteBook.id === null) {
+      console.error('Book has no ID:', deleteBook);
+      toast.error('Cannot delete book: No ID found');
+      return;
+    }
+
+    console.log('Confirming delete for book:', deleteBook);
+    deleteMutation.mutate(deleteBook.id.toString());
+  };
+
+  const handleEditClick = (book: Book) => {
+    console.log('Setting book for editing:', book);
+    setEditBook(book);
+  };
+
+  const handleEditClose = () => {
+    setEditBook(null);
+  };
 
   if (isLoading) {
     return (
@@ -288,31 +326,32 @@ export default function BookList() {
                     {new Date(book.createdOn!).toLocaleDateString()}
                   </TableCell>
                   <TableCell align="right">
-                    <IconButton
-                      size="small"
-                      onClick={() => setEditBook(book)}
-                      sx={{ 
-                        color: theme.palette.primary.main,
-                        '&:hover': {
-                          bgcolor: theme.palette.primary.main + '1A',
-                        },
-                      }}
-                    >
-                      <EditIcon />
-                    </IconButton>
-                    <IconButton
-                      size="small"
-                      onClick={() => setDeleteBook(book)}
-                      sx={{ 
-                        ml: 1,
-                        color: theme.palette.error.main,
-                        '&:hover': {
-                          bgcolor: theme.palette.error.main + '1A',
-                        },
-                      }}
-                    >
-                      <DeleteIcon />
-                    </IconButton>
+                    <Stack direction="row" spacing={1} justifyContent="flex-end">
+                      <IconButton
+                        onClick={() => handleEditClick(book)}
+                        size="small"
+                        sx={{
+                          color: 'primary.main',
+                          '&:hover': {
+                            backgroundColor: alpha(theme.palette.primary.main, 0.1),
+                          },
+                        }}
+                      >
+                        <EditIcon fontSize="small" />
+                      </IconButton>
+                      <IconButton
+                        onClick={() => handleDeleteClick(book)}
+                        size="small"
+                        sx={{
+                          color: 'error.main',
+                          '&:hover': {
+                            backgroundColor: alpha(theme.palette.error.main, 0.1),
+                          },
+                        }}
+                      >
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
+                    </Stack>
                   </TableCell>
                 </TableRow>
               ))}
@@ -333,14 +372,14 @@ export default function BookList() {
       <BookForm
         book={editBook}
         open={!!editBook}
-        onClose={() => setEditBook(null)}
+        onClose={handleEditClose}
       />
 
       <ConfirmDialog
         open={!!deleteBook}
         title="Delete Book"
-        content={`Are you sure you want to delete "${deleteBook?.title}"?`}
-        onConfirm={() => deleteBook?.id && deleteMutation.mutate(deleteBook.id)}
+        content={`Are you sure you want to delete "${deleteBook?.title}"? (ID: ${deleteBook?.id})`}
+        onConfirm={handleDeleteConfirm}
         onCancel={() => setDeleteBook(null)}
       />
     </>

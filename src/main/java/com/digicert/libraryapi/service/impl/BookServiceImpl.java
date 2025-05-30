@@ -42,6 +42,12 @@ public class BookServiceImpl implements BookService {
     public BookResponse update(BookRequest bookRequest, Long id) {
         log.info("bookService.update entered with request : {} and id:{}", bookRequest, id);
         validateRequest(bookRequest);
+        
+        // Check if book exists
+        if (!bookRepository.existsById(id)) {
+            throw new BookNotFoundException("Book not found with id: " + id);
+        }
+
         Book buildBook = Book.builder()
                 .id(id)
                 .author(bookRequest.getAuthor())
@@ -97,9 +103,12 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public void deleteById(Long id) {
-        log.info("bookService.deleteById entered");
+        log.info("bookService.deleteById entered with id: {}", id);
+        if (!bookRepository.existsById(id)) {
+            throw new BookNotFoundException("Book not found with id: " + id);
+        }
         bookRepository.deleteById(id);
-        log.info("deleteById completed");
+        log.info("deleteById completed successfully for id: {}", id);
     }
 
     private void validateRequest(BookRequest bookRequest) {

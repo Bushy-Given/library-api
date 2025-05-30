@@ -1,41 +1,67 @@
-# Digicert RESTful library API
+# Library Management System API
 
-1.       List all books in the library
+A RESTful API for managing a library's book collection, built with Spring Boot.
 
-2.       CRUD operations on a single book
+## Features
 
+1. List all books in the library
+2. CRUD operations on books (Create, Read, Update, Delete)
+3. Search functionality
+4. Pagination support
+5. Swagger API documentation
 
-
-> API documentation available at http://localhost:8080/library-api/swagger-ui/index.html#/ after starting the app
-   ![img.png](img.png)
+## API Documentation
+API documentation is available at http://localhost:8080/library-api/swagger-ui/index.html#/ after starting the app.
 
 ### Pre-Requirements
-- [jdk11](https://www.oracle.com/technetwork/java/javase/downloads/jdk11-downloads-5066655.html)
-- [gradle](https://gradle.org/)
+- [Java 17](https://www.oracle.com/java/technologies/downloads/#java17)
+- [Gradle](https://gradle.org/)
 
-## Tech stack
-- Spring Boot (web)
-- H2 inMemory DB
+## Tech Stack
+- Spring Boot 3.2.3
+- Spring Data JPA
+- H2 in-memory database
+- Lombok
+- SpringDoc OpenAPI (Swagger)
 
+## Getting Started
 
-### Test
-- `./gradlew test`
+### Build
+```bash
+./gradlew build
+```
 
-### Build 
-- `./gradlew build`
+### Run Tests
+```bash
+./gradlew test
+```
 
-### Start app
-- `./gradlew bootRun`
+### Start Application
+```bash
+./gradlew bootRun
+```
 
->UNIT tests can be found under src/test
-  ![img_1.png](img_1.png)
+The application will start on port 8080 with context path `/library-api`.
 
-### Decisions
-I opted to use H2 inmemory DB mainly because it is quick to setup and does not require db installation to start 
+## Project Structure
+- `src/main/java/com/digicert/libraryapi/` - Main application code
+  - `controller/` - REST controllers
+  - `service/` - Business logic
+  - `persistence/` - Data access layer
+  - `exception/` - Custom exceptions and error handling
+  - `config/` - Configuration classes
 
-I also used SOLID principles and good code patterns, and for unit tests I decided to use mainly mockito without spring runner for fast test startup.
+## Design Decisions
+- H2 in-memory database for quick setup and development
+- SOLID principles and clean code practices
+- Comprehensive unit testing with Mockito
+- Exception handling with custom error responses
+- CORS configuration for frontend integration
 
-
-### Future Steps
-- Use real cloud DB
-- Apply CI/CD pipeline
+## Future Enhancements
+- Implement authentication and authorization
+- Add more advanced search capabilities
+- Migrate to a persistent database
+- Add CI/CD pipeline
+- Implement caching
+- Add rate limiting

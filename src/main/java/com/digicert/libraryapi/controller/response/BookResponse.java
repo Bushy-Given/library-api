@@ -10,12 +10,14 @@ import java.util.Date;
 @AllArgsConstructor
 @Builder
 public class BookResponse {
+    private Long id;
     private String title;
     private String author;
     private Date createdOn;
 
     public static BookResponse buildResponse(Book book){
         return BookResponse.builder()
+                .id(book.getId())
                 .author(book.getAuthor())
                 .title(book.getTitle())
                 .createdOn(book.getCreatedOn()).build();
