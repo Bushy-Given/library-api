@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -32,7 +33,9 @@ public class BookServiceImpl implements BookService {
         validateRequest(bookRequest);
         Book buildBook = Book.builder()
                 .author(bookRequest.getAuthor())
-                .title(bookRequest.getTitle()).build();
+                .title(bookRequest.getTitle())
+                .createdOn(new Date())
+                .build();
         BookResponse bookResponse = buildResponse(bookRepository.save(buildBook));
         log.info("save success response: {}", bookResponse);
         return bookResponse;
@@ -43,15 +46,16 @@ public class BookServiceImpl implements BookService {
         log.info("bookService.update entered with request : {} and id:{}", bookRequest, id);
         validateRequest(bookRequest);
         
-        // Check if book exists
-        if (!bookRepository.existsById(id)) {
-            throw new BookNotFoundException("Book not found with id: " + id);
-        }
+        // Check if book exists and get its creation date
+        Book existingBook = bookRepository.findById(id)
+                .orElseThrow(() -> new BookNotFoundException("Book not found with id: " + id));
 
         Book buildBook = Book.builder()
                 .id(id)
                 .author(bookRequest.getAuthor())
-                .title(bookRequest.getTitle()).build();
+                .title(bookRequest.getTitle())
+                .createdOn(existingBook.getCreatedOn()) // Preserve the original creation date
+                .build();
         BookResponse bookResponse = buildResponse(bookRepository.save(buildBook));
         log.info("update success response: {}", bookResponse);
         return bookResponse;
@@ -81,14 +85,12 @@ public class BookServiceImpl implements BookService {
         List<BookResponse> bookResponses = stream(books.spliterator(), false)
                 .map(BookResponse::buildResponse)
                 .sorted(Comparator
-                        .comparing(BookResponse::getCreatedOn)
+                        .comparing(BookResponse::getCreatedOn, Comparator.nullsLast(Comparator.naturalOrder()))
                         .thenComparing(BookResponse::getTitle)
                         .reversed())
                 .collect(Collectors.toList());
-        if (bookResponses.isEmpty()) {
-            log.error("find all books returned empty list ");
-            throw new BookNotFoundException("books not found");
-        }
+        
+        // Don't throw exception for empty list, just return empty list
         log.info("findAll success response:{}", bookResponses);
         return bookResponses;
     }
